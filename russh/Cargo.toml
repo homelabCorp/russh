@@ -23,6 +23,9 @@ des = ["dep:des"]
 # Danger: DSA algorithm is insecure.
 dsa = ["ssh-key/dsa"]
 ring = ["dep:ring"] # Alternative crypto backend.
+# A pure-Rust crypto backend, for builds that cannot use a C toolchain.
+# Both other backends compile C; this one does not.
+rustcrypto = ["dep:chacha20", "dep:poly1305", "dep:aes-gcm"]
 rsa = ["dep:rsa", "dep:pkcs1", "ssh-key/rsa"]
 serde = ["ssh-key/serde"]
 _bench = ["dep:criterion"]
@@ -79,6 +82,9 @@ polyval = "0.7.1" # only pinned due to a cargo-minimal-versions failure in 0.7.0
 rand_core = { version = "0.10.0" }
 rand.workspace = true
 ring = { version = "0.17.14", optional = true }
+chacha20 = { version = "0.9", optional = true }
+poly1305 = { version = "0.8", optional = true }
+aes-gcm = { version = "0.10", optional = true }
 rsa = { version = "=0.10.0-rc.18", optional = true }
 russh-cryptovec = { version = "0.62.0", path = "../cryptovec", features = [
   "ssh-encoding",

@@ -42,14 +42,26 @@ use crate::sshbuffer::SSHBuffer;
 
 pub(crate) mod block;
 pub(crate) mod cbc;
+#[cfg(any(feature = "ring", feature = "aws-lc-rs"))]
 pub(crate) mod chacha20poly1305;
+#[cfg(feature = "rustcrypto")]
+pub(crate) mod chacha20poly1305_rustcrypto;
 pub(crate) mod clear;
+#[cfg(any(feature = "ring", feature = "aws-lc-rs"))]
 pub(crate) mod gcm;
+#[cfg(feature = "rustcrypto")]
+pub(crate) mod gcm_rustcrypto;
 
 use block::SshBlockCipher;
+#[cfg(any(feature = "ring", feature = "aws-lc-rs"))]
 use chacha20poly1305::SshChacha20Poly1305Cipher;
+#[cfg(all(not(any(feature = "ring", feature = "aws-lc-rs")), feature = "rustcrypto"))]
+use chacha20poly1305_rustcrypto::SshChacha20Poly1305Cipher;
 use clear::Clear;
+#[cfg(any(feature = "ring", feature = "aws-lc-rs"))]
 use gcm::GcmCipher;
+#[cfg(all(not(any(feature = "ring", feature = "aws-lc-rs")), feature = "rustcrypto"))]
+use gcm_rustcrypto::GcmCipher;
 
 pub(crate) trait Cipher {
     fn needs_mac(&self) -> bool {
@@ -107,8 +119,14 @@ static _3DES_CBC: SshBlockCipher<CbcWrapper<des::TdesEde3>> = SshBlockCipher(Pha
 static _AES_128_CTR: SshBlockCipher<CtrWrapper<Ctr128BE<Aes128>>> = SshBlockCipher(PhantomData);
 static _AES_192_CTR: SshBlockCipher<CtrWrapper<Ctr128BE<Aes192>>> = SshBlockCipher(PhantomData);
 static _AES_256_CTR: SshBlockCipher<CtrWrapper<Ctr128BE<Aes256>>> = SshBlockCipher(PhantomData);
+#[cfg(any(feature = "ring", feature = "aws-lc-rs"))]
 static _AES_128_GCM: GcmCipher = GcmCipher(&ALGORITHM_AES_128_GCM);
+#[cfg(any(feature = "ring", feature = "aws-lc-rs"))]
 static _AES_256_GCM: GcmCipher = GcmCipher(&ALGORITHM_AES_256_GCM);
+#[cfg(all(not(any(feature = "ring", feature = "aws-lc-rs")), feature = "rustcrypto"))]
+static _AES_128_GCM: GcmCipher = GcmCipher(gcm_rustcrypto::Size::Aes128);
+#[cfg(all(not(any(feature = "ring", feature = "aws-lc-rs")), feature = "rustcrypto"))]
+static _AES_256_GCM: GcmCipher = GcmCipher(gcm_rustcrypto::Size::Aes256);
 static _AES_128_CBC: SshBlockCipher<CbcWrapper<Aes128>> = SshBlockCipher(PhantomData);
 static _AES_192_CBC: SshBlockCipher<CbcWrapper<Aes192>> = SshBlockCipher(PhantomData);
 static _AES_256_CBC: SshBlockCipher<CbcWrapper<Aes256>> = SshBlockCipher(PhantomData);

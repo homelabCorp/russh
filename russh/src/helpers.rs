@@ -182,16 +182,21 @@ pub use name_list::NameList;
 
 pub(crate) mod macros {
     #[allow(clippy::crate_in_macro_def)]
+    #[allow(unused_macros)]
     macro_rules! map_err {
         ($result:expr) => {
             $result.map_err(|e| crate::Error::from(e))
         };
     }
 
+    #[allow(unused_imports)]
     pub(crate) use map_err;
 }
 
-#[cfg(any(feature = "ring", feature = "aws-lc-rs"))]
+// Re-exported under any backend, because `lib_inner.rs` re-exports it
+// unconditionally. Only the C backends use it, so it is allowed to be unused.
+#[cfg(any(feature = "ring", feature = "aws-lc-rs", feature = "rustcrypto"))]
+#[allow(unused_imports)]
 pub(crate) use macros::map_err;
 
 #[doc(hidden)]
